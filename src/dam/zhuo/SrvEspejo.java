@@ -23,14 +23,19 @@ public class SrvEspejo {
 				DatagramPacket packet = new DatagramPacket(new byte[LENGTH], LENGTH);
 				daSocket.receive(packet);
 				String mensaje = new String(packet.getData());
-				System.out.println("Mensaje recibido del cliente: ");
+				System.out.println(packet.getData().length);
+
+				String reves = delReves(new String(mensaje.getBytes(), packet.getOffset(), packet.getLength()));
+				System.out.println(packet.getLength());
+				System.out.println("Mensaje recibido del cliente: " + reves);
+				System.out.println("Offset: " + packet.getOffset());
+				System.out.println("Longitud: "+packet.getData().length);
 				byte[] respuesta = new byte[LENGTH];
-				respuesta = mensaje.getBytes();
-				DatagramPacket envio = new DatagramPacket(respuesta, respuesta.length);
-				
-				DatagramSocket socketCli = new DatagramSocket(packet.getPort(), packet.getAddress());
-				System.out.println("Enviando mensjae al cliente...");
-				socketCli.send(envio);
+				respuesta = reves.getBytes();
+				DatagramPacket envio = new DatagramPacket(respuesta, respuesta.length, packet.getSocketAddress());
+
+				System.out.println("Enviando mensaje al cliente...");
+				daSocket.send(envio);
 				System.out.println("Terminada conexión con el cliente");
 			}
 			
@@ -42,5 +47,19 @@ public class SrvEspejo {
 	
 	public static void main(String[] args) {
 		new SrvEspejo();
+	}
+	
+	private String delReves(String mensaje) {
+		StringBuilder str = new StringBuilder(mensaje);
+		/*Character c;
+		for(int i = mensaje.length() - 1; i >= 0; i--) {
+			c = mensaje.charAt(i);
+			if(Character.isSpaceChar(c) || Character.isLetterOrDigit(c)) {
+				System.out.println("Char["+i+"]="+mensaje.charAt(i));
+				str.append(mensaje.charAt(i));
+			}
+		}*/
+		str.reverse();
+		return str.toString().toUpperCase();
 	}
 }
